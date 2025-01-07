@@ -1,16 +1,14 @@
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MovingObject
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    protected override bool AttemptMove<T>(int _xDir, int _yDir)
     {
-        
+        return true;
     }
 
-    // Update is called once per frame
-    void Update()
+    protected override void OnCantMove<T>(T component)
     {
-        
+
     }
 }
