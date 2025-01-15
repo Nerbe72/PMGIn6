@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public bool playersTurn = true;
 
     private BoardManager boardManager;
+    private DungeonManager dungeonManager;
+    private Player player;
     private List<Enemy> enemies;
     private bool enemiesMoving = false;
 
@@ -33,8 +35,14 @@ public class GameManager : MonoBehaviour
         enemies = new List<Enemy>();
         gridPositions = new Dictionary<Vector2, Vector2>();
         boardManager = GetComponent<BoardManager>();
-        InitGame();
+        dungeonManager = GetComponent<DungeonManager>();
+    }
+
+    private void Start()
+    {
+        player = Player.Instance;
         SceneManager.sceneLoaded += WhenSceneLoaded;
+        InitGame();
     }
 
     private void Update()
@@ -52,7 +60,8 @@ public class GameManager : MonoBehaviour
     private void InitGame()
     {
         enemies.Clear();
-        boardManager.BoardSetup();
+        //boardManager.BoardSetup();
+        enterDungeon();
     }
 
     public void GameOver()
@@ -63,6 +72,19 @@ public class GameManager : MonoBehaviour
     public void updateBoard(int _hor, int _ver)
     {
         boardManager.addToBoard(_hor, _ver);
+    }
+
+    public void enterDungeon()
+    {
+        dungeonManager.StartDungeon();
+        boardManager.SetDungeonBoard(dungeonManager.gridPositions, dungeonManager.maxBound, dungeonManager.endPos);
+        player.dungeonTransition = false;
+    }
+
+    public void exitDungeon()
+    {
+        boardManager.SetWorldBoard();
+        player.dungeonTransition = false;
     }
 
     private IEnumerator MoveEnemies()

@@ -1,12 +1,12 @@
 fileFormatVersion: 2
-guid: ac9cb1ecc429647f88205bf03ab18205
+guid: ab85bf71eb67e1140a0aebd64e4084c8
 AssetOrigin:
   serializedVersion: 1
-  productId: 30049
-  packageName: WoodTile Textures Pack
+  productId: 130514
+  packageName: Free Wall tile set
   packageVersion: 1.0
-  assetPath: Assets/WoodTile Textures Pack/Wood_Tile_Yellow.png
-  uploadId: 50438
+  assetPath: Assets/IGL Free TileSet/Brick Wall/Brick_wall_02.png
+  uploadId: 272453
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -37,16 +37,16 @@ TextureImporter:
   generateCubemap: 6
   cubemapConvolution: 0
   seamlessCubemap: 0
-  textureFormat: -1
+  textureFormat: 1
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 0
+    wrapW: 1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -55,7 +55,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 2048
+  spritePixelsToUnits: 128
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -120,7 +120,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 6efe318025e013d4d91e2a177a592edc
     internalID: 0
     vertices: []
     indices: 

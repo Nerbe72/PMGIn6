@@ -1,3 +1,4 @@
+using log4net.Util;
 using System.Collections;
 using UnityEngine;
 
@@ -28,10 +29,9 @@ public abstract class MovingObject : MonoBehaviour
         hit = Physics2D.Linecast(start, end, blockingLayer);
         collider2d.enabled = true;
 
-        if (hit.transform == null)
+        if (hit.collider == null)
         {
             StartCoroutine(SmoothMovement(end));
-            Debug.Log(end);
             return true;
         }
 
@@ -44,7 +44,7 @@ public abstract class MovingObject : MonoBehaviour
         
         bool canMove = Move(_xDir, _yDir, out hit);
 
-        if (hit.transform == null) return true;
+        if (hit.collider == null) return true;
         
         T hitComponent = hit.transform.GetComponent<T>();
 
@@ -62,13 +62,19 @@ public abstract class MovingObject : MonoBehaviour
 
         while (remainDist > float.Epsilon)
         {
-            Vector3 newPos = Vector3.MoveTowards(rigidbody2d.position, end, Time.deltaTime * inverseMoveTime);
+            Vector3 newPos = Vector3.Slerp(rigidbody2d.position, end, Time.deltaTime * inverseMoveTime);
             rigidbody2d.MovePosition(newPos);
             remainDist = (transform.position - end).sqrMagnitude;
+            float scaleMultiply = 0.1f;
+            transform.localScale = new Vector3(
+                (scaleMultiply * Mathf.Sin(remainDist * Mathf.PI * 0.5f)) + 1,
+                (scaleMultiply * Mathf.Sin(remainDist * Mathf.PI * 0.5f)) + 1,
+                1);
 
             yield return null;
         }
 
+        transform.localScale = Vector3.one;
         yield break;
     }
 }

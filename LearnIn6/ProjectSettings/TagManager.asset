@@ -3,7 +3,15 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Floor
+  - Wall
+  - Exit
+  - Food
+  - Soda
+  - Item
+  - Chest
+  - Weapon
   layers:
   - Default
   - TransparentFX
@@ -18,9 +26,9 @@ TagManager:
   - Ground
   - Wall
   - Enemy
-  - 
-  - 
-  - 
+  - Item
+  - Chest
+  - Weapon
   - 
   - 
   - 
@@ -40,6 +48,18 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Unit
+    uniqueID: 2815408101
+    locked: 0
+  - name: Item
+    uniqueID: 4242178975
+    locked: 0
+  - name: Player
+    uniqueID: 483964843
+    locked: 0
+  - name: Weapon
+    uniqueID: 3216216171
     locked: 0
   m_RenderingLayers:
   - Default
