@@ -15,6 +15,11 @@ public class Wall : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
+    private void Start()
+    {
+        Random.InitState(GameManager.seed);
+    }
+
     public void DamageWall(int _loss)
     {
         hp -= _loss;

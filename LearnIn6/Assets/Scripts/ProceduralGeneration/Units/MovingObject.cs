@@ -9,9 +9,11 @@ public abstract class MovingObject : MonoBehaviour
     public float moveTime;
     public LayerMask blockingLayer;
 
-    private BoxCollider2D collider2d;
+    protected BoxCollider2D collider2d;
     private Rigidbody2D rigidbody2d;
     private float inverseMoveTime;
+
+    private Coroutine smoothMoveCo;
 
     protected virtual void Awake()
     {
@@ -31,7 +33,10 @@ public abstract class MovingObject : MonoBehaviour
 
         if (hit.collider == null)
         {
-            StartCoroutine(SmoothMovement(end));
+            if (smoothMoveCo != null)
+                StopCoroutine(smoothMoveCo);
+
+            smoothMoveCo = StartCoroutine(SmoothMovement(end));
             return true;
         }
 
@@ -75,6 +80,8 @@ public abstract class MovingObject : MonoBehaviour
         }
 
         transform.localScale = Vector3.one;
+
+        smoothMoveCo = null;
         yield break;
     }
 }

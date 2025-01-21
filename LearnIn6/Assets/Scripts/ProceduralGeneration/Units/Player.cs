@@ -66,15 +66,37 @@ public class Player : MovingObject
 
         bool canMove = false;
 
-        //좌우이동 선입력
+        //좌우 입력 우선순위
         if (horizontal != 0)
             vertical = 0;
 
         if (horizontal == 0 && vertical == 0) return;
         if (dungeonTransition) return;
 
-        canMove = AttemptMove<Wall>(horizontal, vertical);
-        canMove = AttemptMove<Chest>(horizontal, vertical);
+        Vector2 start = transform.position;
+        Vector2 end = start + new Vector2(horizontal, vertical);
+        collider2d.enabled = true;
+        RaycastHit2D hit = Physics2D.Linecast(start, end, blockingLayer);
+
+        if (hit.transform != null)
+        {
+            switch (hit.transform.gameObject.tag)
+            {
+                case "Wall":
+                    canMove = AttemptMove<Wall>(horizontal, vertical);
+                    break;
+                case "Chest":
+                    canMove = AttemptMove<Chest>(horizontal, vertical);
+                    break;
+                case "Enemy":
+                    canMove = AttemptMove<Enemy>(horizontal, vertical);
+                    break;
+            }
+        }
+        else
+        {
+            canMove = AttemptMove<Wall>(horizontal, vertical);
+        }
 
         if (canMove && onWorldBoard)
         {
@@ -88,6 +110,11 @@ public class Player : MovingObject
     {
         transform.position = _pos;
         position = _pos;
+    }
+
+    public void LoseHealth(int _dmg)
+    {
+
     }
 
     protected override bool AttemptMove<T>(int _xDir, int _yDir)
@@ -125,6 +152,11 @@ public class Player : MovingObject
         if (typeof(T) == typeof(Chest))
         {
             (component as Chest).Open();
+        }
+
+        if (typeof(T) == typeof(Enemy))
+        {
+            (component as Enemy).DamageEnemy(wallDamage);
         }
 
         if (weapon != null)
@@ -199,6 +231,18 @@ public class Player : MovingObject
         }
     }
 
+    private void AdaptDifficulty()
+    {
+        if (wallDamage >= 10)
+            GameManager.Instance.enemiesSmarter = true;
+
+        if (wallDamage >= 15)
+            GameManager.Instance.enemiesFaster = true;
+
+        if (wallDamage >= 20)
+            GameManager.Instance.enemySpawnRatio = 10;
+    }
+
     private void OnTriggerEnter2D(Collider2D _collider)
     {
         if (_collider == null) return;
@@ -238,6 +282,8 @@ public class Player : MovingObject
             weaponComponent1.color = Color.white;
             weaponComponent2.color = Color.white;
             weaponComponent3.color = Color.white;
+
+            AdaptDifficulty();
         }
     }
 }

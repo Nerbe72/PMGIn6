@@ -13,6 +13,11 @@ public class Chest : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
+    private void Start()
+    {
+        Random.InitState(GameManager.seed);
+    }
+
     public void Open()
     {
         spriteRenderer.sprite = openSprite;

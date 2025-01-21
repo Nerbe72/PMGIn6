@@ -1,3 +1,4 @@
+using Codice.CM.Common;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ public enum TileType
     RANDOM,
     EMPTY,
     CHEST,
+    ENEMY,
 }
 
 public class DungeonManager : MonoBehaviour
@@ -67,10 +69,7 @@ public class DungeonManager : MonoBehaviour
 
     public void StartDungeon()
     {
-        int seed = (int)System.DateTime.Now.Ticks;
-        seed = -714783279;
-        Debug.Log($"Current Map Seed: {seed}");
-        Random.InitState(seed);
+        Random.InitState(GameManager.seed);
         gridPositions.Clear();
 
         maxBound = Random.Range(50, 101);
@@ -148,12 +147,19 @@ public class DungeonManager : MonoBehaviour
                 int randomIndex = Random.Range(0, adjacentTileCount);
                 Vector2 newRPathPos = _tile.adjacentPathTiles[randomIndex];
 
-                if (!gridPositions.ContainsKey(newRPathPos))
+                if (gridPositions.ContainsKey(newRPathPos)) continue;
+                
+                if (Random.Range(0, GameManager.Instance.enemySpawnRatio) == 1)
                 {
-                    gridPositions.Add(newRPathPos, TileType.RANDOM);
-                    PathTile newRPath = new PathTile(TileType.RANDOM, newRPathPos, minBound, maxBound, gridPositions);
-                    pathQueue.Add(newRPath);
+                    gridPositions.Add(newRPathPos, TileType.ENEMY);
                 }
+                else
+                {
+                    gridPositions.Add(newRPathPos, TileType.EMPTY);
+                }
+
+                PathTile newRPath = new PathTile(TileType.RANDOM, newRPathPos, minBound, maxBound, gridPositions);
+                pathQueue.Add(newRPath);
             }
         }
     }

@@ -23,15 +23,17 @@ public class BoardManager : MonoBehaviour
     public GameObject[] outerWallTiles;
     public ItemType[] itemTypes; 
     public GameObject chestTile;
+    public GameObject enemy;
 
     [HideInInspector] public Transform boardHolder;
 
     private Dictionary<Vector2, Vector2> gridPositions = new Dictionary<Vector2, Vector2>();
     private Transform dungeonBoardHolder;
-    private Dictionary<Vector2, Vector2> dungeonGridpositions;
 
     public void BoardSetup()
     {
+        Random.InitState(GameManager.seed);
+
         if (boardHolder == null) boardHolder = new GameObject("Board").transform;
         for (int x = 0; x < columns; x++)
         {
@@ -97,6 +99,8 @@ public class BoardManager : MonoBehaviour
             GameObject instance = Instantiate(toInstantiate, (Vector3)_pos, Quaternion.identity);
             instance.transform.SetParent(boardHolder);
 
+            toInstantiate = null;
+
             if (Random.Range(0, 3) == 1)
             {
                 toInstantiate = wallTiles[Random.Range(0, wallTiles.Length)];
@@ -105,6 +109,13 @@ public class BoardManager : MonoBehaviour
             {
                 toInstantiate = exit;
             }
+            
+            if (Random.Range(0, GameManager.Instance.enemySpawnRatio) == 1)
+            {
+                toInstantiate = enemy;
+            }
+
+            if (toInstantiate == null) return;
 
             instance = Instantiate(toInstantiate, (Vector3)_pos, Quaternion.identity);
             instance.GetComponent<SpriteRenderer>().sortingOrder = 1;
@@ -128,6 +139,12 @@ public class BoardManager : MonoBehaviour
             if (tile.Value == TileType.CHEST)
             {
                 toInstantiate = chestTile;
+                instance = Instantiate(toInstantiate, (Vector3)tile.Key, Quaternion.identity);
+                instance.transform.SetParent(dungeonBoardHolder);
+            }
+            else if (tile.Value == TileType.ENEMY)
+            {
+                toInstantiate = enemy;
                 instance = Instantiate(toInstantiate, (Vector3)tile.Key, Quaternion.identity);
                 instance.transform.SetParent(dungeonBoardHolder);
             }
@@ -155,5 +172,10 @@ public class BoardManager : MonoBehaviour
     {
         Destroy(dungeonBoardHolder.gameObject);
         boardHolder.gameObject.SetActive(true);
+    }
+
+    public bool CheckValidTile(Vector2 _pos)
+    {
+        return gridPositions.ContainsKey(_pos);
     }
 }

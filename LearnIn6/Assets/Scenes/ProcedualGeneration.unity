@@ -223,9 +223,9 @@ GameObject:
   - component: {fileID: 88077688}
   - component: {fileID: 88077689}
   - component: {fileID: 88077690}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1424,6 +1424,10 @@ MonoBehaviour:
   turnDelay: 0.1
   healthPoints: 50
   playersTurn: 0
+  enemiesFaster: 1
+  enemiesSmarter: 0
+  enemySpawnRatio: 10
+  playerInDungeon: 0
 --- !u!114 &1661198748
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1448,6 +1452,7 @@ MonoBehaviour:
   - {fileID: 4847086486695583073, guid: b7de58d40e1085b41aab14e15ce94027, type: 3}
   itemTypes: []
   chestTile: {fileID: 6121451440318899991, guid: e737e4b735f69b44e906111d4a738fc5, type: 3}
+  enemy: {fileID: 7310223463207013125, guid: 52f794896a499eb4ab0021451a1831f0, type: 3}
   boardHolder: {fileID: 0}
 --- !u!114 &1661198749
 MonoBehaviour:
