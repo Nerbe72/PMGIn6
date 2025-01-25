@@ -14,8 +14,19 @@ public enum TileType
     ENEMY,
 }
 
+public enum UnitType
+{
+    ENEMY,
+    WALL,
+    CHEST,
+    EXIT,
+}
+
 public class DungeonManager : MonoBehaviour
 {
+    //접근 불가능한 유닛이 존재하는 경우 추가, 없어진경우 삭제
+    public static Dictionary<Vector2, UnitType> unitPositions = new Dictionary<Vector2, UnitType>();
+
     [Serializable]
     public class PathTile
     {
@@ -61,7 +72,7 @@ public class DungeonManager : MonoBehaviour
         }
     }
 
-    public Dictionary <Vector2, TileType> gridPositions = new Dictionary<Vector2, TileType>();
+    public Dictionary<Vector2, TileType> gridPositions = new Dictionary<Vector2, TileType>();
     public int minBound = 0;
     public int maxBound;
     public static Vector2 startPos;
@@ -181,7 +192,9 @@ public class DungeonManager : MonoBehaviour
                 if (!gridPositions.ContainsKey(chamberTilePos) && IsTileInBound)
                 {
                     if (Random.Range(0, 70) == 1)
+                    {
                         gridPositions.Add(chamberTilePos, TileType.CHEST);
+                    }
                     else
                         gridPositions.Add(chamberTilePos, TileType.EMPTY);
                 }

@@ -1,5 +1,8 @@
 using NUnit.Framework;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class AStar : MonoBehaviour
@@ -11,26 +14,53 @@ public class AStar : MonoBehaviour
         public float hCost;
         public float fCost => gCost + hCost;
         public Node parent;
+        public bool isMovable;
 
-        public Node(Vector2 _pos)
+        public Node(Vector2 _pos, bool _isMovable)
         {
             position = _pos;
+            isMovable = _isMovable;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Node other)
+            {
+                return this.position == other.position;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return position.GetHashCode();
         }
     }
 
-    public List<Node> FindPath(Vector2 _start, Vector2 _end)
+    private List<Node> bestPath = new List<Node>();
+    private int searchFailCount = 0;
+
+    private Coroutine findCo;
+
+    public void FindPath(Vector2 _start, Vector2 _end)
     {
-        List<Node> openList = new List<Node>();
+        bestPath.Clear();
+
+        HashSet<Node> openList = new HashSet<Node>();
         HashSet<Node> closedList = new HashSet<Node>();
-        Node startNode = new Node(_start);
-        Node endNode = new Node(_end);
+        Node startNode = new Node(_start, true);
+        Node endNode = new Node(_end, true);
 
         openList.Add(startNode);
 
-        while(openList.Count > 0)
+        while (openList.Count > 0)
         {
-            Node currentNode = openList[0];
-            foreach(Node node in openList)
+            if (openList.Count >= 200) break;
+
+            Node currentNode = openList.ElementAt(0);
+
+            foreach (Node node in openList)
             {
                 if (node.fCost < currentNode.fCost || (node.fCost == currentNode.fCost && node.hCost < currentNode.hCost))
                 {
@@ -38,26 +68,36 @@ public class AStar : MonoBehaviour
                 }
             }
 
+            //탐색 완료 플래그
             openList.Remove(currentNode);
-            closedList.Add(currentNode);
+            if (!closedList.Contains(currentNode))
+                closedList.Add(currentNode);
 
             if (currentNode.position == endNode.position)
             {
-                return FinalPath(startNode, endNode);
+                //return FinalPath(startNode, endNode);
+                bestPath = FinalPath(startNode, currentNode);
+                break;
             }
 
-            foreach(Node neighbor in GetNeighbor(currentNode))
+            foreach (Node neighbor in GetNeighbor(currentNode))
             {
                 if (closedList.Contains(neighbor))
                 {
                     continue;
                 }
 
-                float newGCost = currentNode.gCost + Vector2.Distance(currentNode.position, neighbor.position);
+                if (!neighbor.isMovable)
+                {
+                    closedList.Add(neighbor);
+                    continue;
+                }
+
+                float newGCost = currentNode.gCost + 1;
                 if (newGCost < neighbor.gCost || !openList.Contains(neighbor))
                 {
                     neighbor.gCost = newGCost;
-                    neighbor.hCost = Vector2.Distance(neighbor.position, endNode.position);
+                    neighbor.hCost = Mathf.Abs(neighbor.position.x - endNode.position.x) + Mathf.Abs(neighbor.position.y - endNode.position.y);
                     neighbor.parent = currentNode;
 
                     if (!openList.Contains(neighbor))
@@ -67,8 +107,30 @@ public class AStar : MonoBehaviour
                 }
             }
         }
+    }
 
-        return null;
+    /// <summary>
+    /// 다음 이동할 노드를 반환
+    /// </summary>
+    /// <returns></returns>
+    public Node GetNextNode()
+    {
+        if (bestPath == null || bestPath.Count <= 1)
+            return new Node(transform.position, true);
+
+        return bestPath[1];
+    }
+
+    public List<Vector3> GetVecPath()
+    {
+        List<Vector3> vPath = new List<Vector3>();
+
+        foreach(Node p in bestPath)
+        {
+            vPath.Add((Vector3)p.position);
+        }
+
+        return vPath;
     }
 
     /// <summary>
@@ -94,6 +156,23 @@ public class AStar : MonoBehaviour
 
     private List<Node> GetNeighbor(Node _targetNode)
     {
-        return new List<Node>();
+        List<Node> neighbors = new List<Node>();
+        Vector2[] directions = new Vector2[]
+        {
+            new Vector2(1, 0),
+            new Vector2(-1, 0),
+            new Vector2(0, 1),
+            new Vector2(0, -1),
+        };
+
+        Vector2 neighborPos;
+
+        foreach(Vector2 dir in directions)
+        {
+            neighborPos = _targetNode.position + dir;
+            neighbors.Add(new Node(neighborPos, !DungeonManager.unitPositions.ContainsKey(neighborPos)));
+        }
+
+        return neighbors;
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class BoardManager : MonoBehaviour
 {
@@ -141,12 +142,14 @@ public class BoardManager : MonoBehaviour
                 toInstantiate = chestTile;
                 instance = Instantiate(toInstantiate, (Vector3)tile.Key, Quaternion.identity);
                 instance.transform.SetParent(dungeonBoardHolder);
+                DungeonManager.unitPositions.Add(tile.Key, UnitType.CHEST);
             }
             else if (tile.Value == TileType.ENEMY)
             {
                 toInstantiate = enemy;
                 instance = Instantiate(toInstantiate, (Vector3)tile.Key, Quaternion.identity);
                 instance.transform.SetParent(dungeonBoardHolder);
+                DungeonManager.unitPositions.Add(tile.Key, UnitType.ENEMY);
             }
         }
 
@@ -154,11 +157,13 @@ public class BoardManager : MonoBehaviour
         {
             for(int y = -1; y < _bound; y++)
             {
-                if (!_dungeonTiles.ContainsKey(new Vector2(x, y)))
+                Vector2 pos = new Vector2(x, y);
+                if (!_dungeonTiles.ContainsKey(pos))
                 {
                     toInstantiate = outerWallTiles[Random.Range(0, outerWallTiles.Length)];
-                    instance = Instantiate(toInstantiate, new Vector2(x, y), Quaternion.identity);
+                    instance = Instantiate(toInstantiate, pos, Quaternion.identity);
                     instance.transform.SetParent(dungeonBoardHolder);
+                    DungeonManager.unitPositions.Add(pos, UnitType.WALL);
                 }
             }
         }
@@ -166,6 +171,7 @@ public class BoardManager : MonoBehaviour
         toInstantiate = exit;
         instance = Instantiate(toInstantiate, (Vector3)_endPos, Quaternion.identity);
         instance.transform.SetParent(dungeonBoardHolder);
+        DungeonManager.unitPositions.Add(_endPos, UnitType.EXIT);
     }
 
     public void SetWorldBoard()

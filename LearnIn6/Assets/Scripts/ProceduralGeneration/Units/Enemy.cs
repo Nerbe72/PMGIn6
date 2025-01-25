@@ -1,5 +1,7 @@
+using NUnit.Framework;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy : MovingObject
@@ -10,16 +12,39 @@ public class Enemy : MovingObject
     private Transform target;
     private bool skipMove;
 
+    private AStar astar;
+
     private void Start()
     {
         GameManager.Instance.AddEnemyToList(this);
         animator = GetComponent<Animator>();
         target = Player.Instance.transform;
+        astar = gameObject.AddComponent<AStar>();
     }
 
     private void OnDestroy()
     {
-        Debug.Log("³ª Á×³×..");
+        if (DungeonManager.unitPositions.ContainsKey(transform.position))
+            DungeonManager.unitPositions.Remove(transform.position);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (!GameManager.Instance.enemiesSmartest) return;
+
+        astar.FindPath(transform.position, target.position);
+        Gizmos.color = Color.red;
+        List<Vector3> listPath = astar.GetVecPath();
+        List<Vector3> multiPath = new List<Vector3>();
+        for(int i = 0; i < listPath.Count - 1; i++)
+        {
+            multiPath.Add(listPath[i]);
+            multiPath.Add(listPath[i + 1]);
+        }
+
+        Vector3[] arrayPath = multiPath.ToArray();
+        ReadOnlySpan<Vector3> spanPath = new ReadOnlySpan<Vector3>(arrayPath);
+        Gizmos.DrawLineList(spanPath);
     }
 
     protected override bool AttemptMove<T>(int _xDir, int _yDir)
@@ -48,8 +73,18 @@ public class Enemy : MovingObject
     {
         int xDir = 0;
         int yDir = 0;
+        Vector2 start = transform.position;
+        Vector2 end = Vector2.zero;
 
-        if (GameManager.Instance.enemiesSmarter)
+        if (GameManager.Instance.enemiesSmartest)
+        {
+            astar.FindPath(transform.position, Player.position);
+            end = astar.GetNextNode().position;
+
+            xDir = (int)(end.x - start.x);
+            yDir = (int)(end.y - start.y);
+        }
+        else if (!GameManager.Instance.enemiesSmartest && GameManager.Instance.enemiesSmarter)
         {
             int xHeading = (int)target.position.x - (int)transform.position.x;
             int yHeading = (int)target.position.y - (int)transform.position.y;
@@ -70,8 +105,7 @@ public class Enemy : MovingObject
                 else
                     yDir = Math.Sign(yHeading);
 
-                Vector2 start = transform.position;
-                Vector2 end = start + new Vector2(xDir, yDir);
+                end = start + new Vector2(xDir, yDir);
                 collider2d.enabled = false;
                 RaycastHit2D hit = Physics2D.Linecast(start, end, blockingLayer);
                 collider2d.enabled = true;
@@ -93,9 +127,14 @@ public class Enemy : MovingObject
                 yDir = target.position.y > transform.position.y ? 1 : -1;
             else
                 xDir = target.position.x > transform.position.x ? 1 : -1;
+
+            end = new Vector2(start.x + xDir, start.y + yDir);
         }
 
-        AttemptMove<Player>((int)transform.position.x + xDir, (int)transform.position.y + yDir);
+        AttemptMove<Player>((int)end.x, (int)end.y);
+        if (DungeonManager.unitPositions.ContainsKey(start))
+            DungeonManager.unitPositions.Remove(start);
+        DungeonManager.unitPositions.Add(end, UnitType.ENEMY);
     }
 
     public SpriteRenderer GetSpriteRenderer()

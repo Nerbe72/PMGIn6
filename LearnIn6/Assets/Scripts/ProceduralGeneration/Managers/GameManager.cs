@@ -14,10 +14,11 @@ public class GameManager : MonoBehaviour
 
     public bool enemiesFaster = false;
     public bool enemiesSmarter = false;
+    public bool enemiesSmartest = false;
     public int enemySpawnRatio = 20;
 
     private BoardManager boardManager;
-    private DungeonManager dungeonManager;
+    public DungeonManager dungeonManager;
     private Player player;
     private List<Enemy> enemies;
     private bool enemiesMoving = false;
@@ -102,17 +103,26 @@ public class GameManager : MonoBehaviour
     {
         boardManager.SetWorldBoard();
         player.dungeonTransition = false;
+        playerInDungeon = false;
+        enemies.Clear();
+        SoundManager.Instance.FormAudio(false);
     }
 
     public void AddEnemyToList(Enemy _enemy)
     {
         enemies.Add(_enemy);
+        SoundManager.Instance.FormAudio(true);
     }
 
     public void RemoveEnemyFromList(Enemy _enemy)
     {
         if (enemies.Contains(_enemy))
             enemies.Remove(_enemy);
+
+        if (enemies.Count == 0)
+        {
+            SoundManager.Instance.FormAudio(false);
+        }
     }
 
     public bool CheckValidTile(Vector2 _pos)
