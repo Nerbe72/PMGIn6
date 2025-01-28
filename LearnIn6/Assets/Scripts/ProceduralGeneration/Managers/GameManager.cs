@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
 
     public float turnDelay = 0.1f;
     public int healthPoints = 100;
-    [HideInInspector] public bool playersTurn = true;
+    public bool playersTurn = true;
 
     public bool enemiesFaster = false;
     public bool enemiesSmarter = false;
@@ -25,6 +25,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool playerInDungeon;
 
     private Dictionary<Vector2, Vector2> gridPositions;
+
+    Coroutine enemyCo;
 
     private void Awake()
     {
@@ -59,7 +61,11 @@ public class GameManager : MonoBehaviour
     {
         if (playersTurn || enemiesMoving) return;
 
-        StartCoroutine(MoveEnemies());
+        if (enemyCo != null)
+        {
+            StopCoroutine(enemyCo);
+        }
+        enemyCo = StartCoroutine(MoveEnemies());
     }
 
     private void WhenSceneLoaded(Scene _scene, LoadSceneMode _mode)
@@ -130,6 +136,11 @@ public class GameManager : MonoBehaviour
         return gridPositions.ContainsKey(_pos);
     }
 
+    public void RemoveEnemy(Enemy _target)
+    {
+        enemies.Remove(_target);
+    }
+
     private IEnumerator MoveEnemies()
     {
         enemiesMoving = true;
@@ -159,7 +170,6 @@ public class GameManager : MonoBehaviour
             {
                 if ((!enemies[i].GetSpriteRenderer().isVisible) || (!boardManager.CheckValidTile(enemies[i].transform.position)))
                 {
-                    Debug.Log("È¤½Ã?");
                     enemiesToDestroy.Add(enemies[i]);
                     continue;
                 }
@@ -180,6 +190,7 @@ public class GameManager : MonoBehaviour
         }
         enemiesToDestroy.Clear();
 
+        enemyCo = null;
         yield break;
     }
 }

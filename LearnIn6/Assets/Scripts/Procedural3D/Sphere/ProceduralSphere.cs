@@ -115,7 +115,7 @@ public class ProceduralSphere : MonoBehaviour
         }
         #endregion
 
-        //mesh.vertices = Randomize(vertices);
+        mesh.vertices = Randomize(vertices);
         mesh.vertices = vertices;
         mesh.normals = normales;
         mesh.uv = uvs;

@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 234ef1db627fc8f4d95956333baf94d8, type: 3}
   m_Name: Glove
   m_EditorClassIdentifier: 
-  typeName: Glove
-  exclusiveMaxAttackMod: 0
+  exclusiveMaxAttackMod: 20
   exclusiveMaxDefenseMod: 0
   sprite: {fileID: 972225539, guid: 714225fe5b595bc429dfc1f71c23f3b9, type: 3}

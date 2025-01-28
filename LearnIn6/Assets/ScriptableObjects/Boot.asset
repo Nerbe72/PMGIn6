@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 234ef1db627fc8f4d95956333baf94d8, type: 3}
   m_Name: Boot
   m_EditorClassIdentifier: 
-  typeName: Boot
   exclusiveMaxAttackMod: 0
-  exclusiveMaxDefenseMod: 0
+  exclusiveMaxDefenseMod: 20
   sprite: {fileID: 1867303735, guid: 714225fe5b595bc429dfc1f71c23f3b9, type: 3}

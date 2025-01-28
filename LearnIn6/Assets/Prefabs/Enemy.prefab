@@ -53,6 +53,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 6152
   playerDamage: 2
+  health: 10
+  foodTiles:
+  - {fileID: 951869814559342709, guid: 7b8c2b7b1369fe149ab56643cf3b6e94, type: 3}
+  - {fileID: 6554893309799990698, guid: 95a3a73d04b8ce245b110cb96f501279, type: 3}
 --- !u!212 &1078923838673018746
 SpriteRenderer:
   m_ObjectHideFlags: 0

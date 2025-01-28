@@ -1428,7 +1428,7 @@ MonoBehaviour:
   turnDelay: 0.1
   healthPoints: 50
   playersTurn: 0
-  enemiesFaster: 1
+  enemiesFaster: 0
   enemiesSmarter: 0
   enemiesSmartest: 1
   enemySpawnRatio: 10

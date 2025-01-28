@@ -1,6 +1,4 @@
-using NUnit.Framework;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -20,6 +18,7 @@ public class AStar : MonoBehaviour
         {
             position = _pos;
             isMovable = _isMovable;
+            gCost = float.MaxValue; // 초기 gCost는 매우 크게 설정
         }
 
         public override bool Equals(object obj)
@@ -28,7 +27,6 @@ public class AStar : MonoBehaviour
             {
                 return this.position == other.position;
             }
-
             return false;
         }
 
@@ -52,30 +50,20 @@ public class AStar : MonoBehaviour
         Node startNode = new Node(_start, true);
         Node endNode = new Node(_end, true);
 
+        startNode.gCost = 0;
+        startNode.hCost = Vector2.Distance(startNode.position, endNode.position);
         openList.Add(startNode);
 
         while (openList.Count > 0)
         {
-            if (openList.Count >= 200) break;
+            //f가 낮으면서 h가 낮은 순으로
+            Node currentNode = openList.OrderBy(n => n.fCost).ThenBy(n => n.hCost).First();
 
-            Node currentNode = openList.ElementAt(0);
-
-            foreach (Node node in openList)
-            {
-                if (node.fCost < currentNode.fCost || (node.fCost == currentNode.fCost && node.hCost < currentNode.hCost))
-                {
-                    currentNode = node;
-                }
-            }
-
-            //탐색 완료 플래그
             openList.Remove(currentNode);
-            if (!closedList.Contains(currentNode))
-                closedList.Add(currentNode);
+            closedList.Add(currentNode);
 
             if (currentNode.position == endNode.position)
             {
-                //return FinalPath(startNode, endNode);
                 bestPath = FinalPath(startNode, currentNode);
                 break;
             }
@@ -83,9 +71,7 @@ public class AStar : MonoBehaviour
             foreach (Node neighbor in GetNeighbor(currentNode))
             {
                 if (closedList.Contains(neighbor))
-                {
                     continue;
-                }
 
                 if (!neighbor.isMovable)
                 {
@@ -93,11 +79,12 @@ public class AStar : MonoBehaviour
                     continue;
                 }
 
+                //g/h코스트 재연산
                 float newGCost = currentNode.gCost + 1;
-                if (newGCost < neighbor.gCost || !openList.Contains(neighbor))
+                if (newGCost < neighbor.gCost)
                 {
                     neighbor.gCost = newGCost;
-                    neighbor.hCost = Mathf.Abs(neighbor.position.x - endNode.position.x) + Mathf.Abs(neighbor.position.y - endNode.position.y);
+                    neighbor.hCost = Vector2.Distance(neighbor.position, endNode.position);
                     neighbor.parent = currentNode;
 
                     if (!openList.Contains(neighbor))
@@ -107,25 +94,27 @@ public class AStar : MonoBehaviour
                 }
             }
         }
+
+        GC.Collect();
     }
 
     /// <summary>
     /// 다음 이동할 노드를 반환
     /// </summary>
-    /// <returns></returns>
     public Node GetNextNode()
     {
+        //경로가 없으면 제자리 대기
         if (bestPath == null || bestPath.Count <= 1)
-            return new Node(transform.position, true);
+            return new Node((Vector2)transform.position, true);
 
-        return bestPath[1];
+        return bestPath[0];
     }
 
     public List<Vector3> GetVecPath()
     {
         List<Vector3> vPath = new List<Vector3>();
 
-        foreach(Node p in bestPath)
+        foreach (Node p in bestPath)
         {
             vPath.Add((Vector3)p.position);
         }
@@ -134,17 +123,14 @@ public class AStar : MonoBehaviour
     }
 
     /// <summary>
-    /// end노드부터 start노드까지 부모노드를 순회하며 경로를 생성함
+    /// End 노드부터 Start 노드까지 부모 노드를 순회하며 경로를 생성함
     /// </summary>
-    /// <param name="_startNode"></param>
-    /// <param name="_endNode"></param>
-    /// <returns></returns>
     private List<Node> FinalPath(Node _startNode, Node _endNode)
     {
         List<Node> path = new List<Node>();
         Node currentNode = _endNode;
 
-        while(currentNode != _startNode)
+        while (currentNode != _startNode)
         {
             path.Add(currentNode);
             currentNode = currentNode.parent;
@@ -165,12 +151,12 @@ public class AStar : MonoBehaviour
             new Vector2(0, -1),
         };
 
-        Vector2 neighborPos;
-
-        foreach(Vector2 dir in directions)
+        foreach (Vector2 dir in directions)
         {
-            neighborPos = _targetNode.position + dir;
-            neighbors.Add(new Node(neighborPos, !DungeonManager.unitPositions.ContainsKey(neighborPos)));
+            Vector2 neighborPos = _targetNode.position + dir;
+            bool isMovable = !DungeonManager.unitPositions.ContainsKey(neighborPos);
+
+            neighbors.Add(new Node(neighborPos, isMovable));
         }
 
         return neighbors;

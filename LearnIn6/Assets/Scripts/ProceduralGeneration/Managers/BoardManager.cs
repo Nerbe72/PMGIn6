@@ -155,7 +155,7 @@ public class BoardManager : MonoBehaviour
 
         for(int x = -1; x < _bound + 1; x++)
         {
-            for(int y = -1; y < _bound; y++)
+            for(int y = -1; y < _bound + 1; y++)
             {
                 Vector2 pos = new Vector2(x, y);
                 if (!_dungeonTiles.ContainsKey(pos))

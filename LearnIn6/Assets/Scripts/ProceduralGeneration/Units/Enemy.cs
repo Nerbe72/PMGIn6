@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Enemy : MovingObject
 {
@@ -11,6 +12,8 @@ public class Enemy : MovingObject
     private Animator animator;
     private Transform target;
     private bool skipMove;
+    [SerializeField] private int health = 10;
+    public GameObject[] foodTiles;
 
     private AStar astar;
 
@@ -32,20 +35,20 @@ public class Enemy : MovingObject
     {
         if (!GameManager.Instance.enemiesSmartest) return;
 
-        astar.FindPath(transform.position, target.position);
         Gizmos.color = Color.red;
-        List<Vector3> listPath = astar.GetVecPath();
-        List<Vector3> multiPath = new List<Vector3>();
-        for(int i = 0; i < listPath.Count - 1; i++)
-        {
-            multiPath.Add(listPath[i]);
-            multiPath.Add(listPath[i + 1]);
-        }
 
-        Vector3[] arrayPath = multiPath.ToArray();
-        ReadOnlySpan<Vector3> spanPath = new ReadOnlySpan<Vector3>(arrayPath);
-        Gizmos.DrawLineList(spanPath);
+        // 경로가 비어있지 않으면
+        List<Vector3> listPath = astar.GetVecPath();
+        if (listPath.Count > 1)
+        {
+            // 경로의 첫 번째 점부터 마지막 점까지 연결하여 그리기
+            for (int i = 0; i < listPath.Count - 1; i++)
+            {
+                Gizmos.DrawLine(listPath[i], listPath[i + 1]);
+            }
+        }
     }
+
 
     protected override bool AttemptMove<T>(int _xDir, int _yDir)
     {
@@ -132,9 +135,10 @@ public class Enemy : MovingObject
         }
 
         AttemptMove<Player>((int)end.x, (int)end.y);
-        if (DungeonManager.unitPositions.ContainsKey(start))
-            DungeonManager.unitPositions.Remove(start);
-        DungeonManager.unitPositions.Add(end, UnitType.ENEMY);
+        //if (DungeonManager.unitPositions.ContainsKey(start))
+        //    DungeonManager.unitPositions.Remove(start);
+        //DungeonManager.unitPositions.Add(end, UnitType.ENEMY);
+        //Debug.Log($"{DungeonManager.unitPositions.ContainsKey(start)} {DungeonManager.unitPositions.ContainsKey(end)}");
     }
 
     public SpriteRenderer GetSpriteRenderer()
@@ -144,6 +148,21 @@ public class Enemy : MovingObject
 
     public void DamageEnemy(int _dmg)
     {
+        health -= _dmg;
 
+        if (health < 0)
+        {
+            GameManager.Instance.RemoveEnemy(this);
+
+            if (Random.Range(0, 5) == 1)
+            {
+                GameObject toInstantiate = foodTiles[Random.Range(0, foodTiles.Length)];
+                GameObject instance = Instantiate(toInstantiate, transform.position, Quaternion.identity);
+                instance.GetComponent<SpriteRenderer>().sortingOrder = 1;
+                instance.transform.SetParent(transform.parent);
+            }
+
+            Destroy(gameObject);
+        }
     }
 }
