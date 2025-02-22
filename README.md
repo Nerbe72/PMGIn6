@@ -4,6 +4,7 @@
    구현영상: https://youtu.be/dJacFIJ56L8
 3. 절차적 생성(완료)
    Procedural Content Generation 책을 학습하고 추가 기능을 구현한다
+   구현영상: https://youtu.be/vfgI2ySxaag
    1) 절차적 생성 (PCG)
    2) PCG 아이템
    3) PCG 음악
